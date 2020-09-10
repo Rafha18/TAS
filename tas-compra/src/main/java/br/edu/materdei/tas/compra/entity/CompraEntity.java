@@ -31,6 +31,7 @@ public class CompraEntity {
     private String codigo;
 
     @Temporal(TemporalType.DATE)
+    @Column(nullable = false)
     private Date dtcompra;
 
     @ManyToOne
