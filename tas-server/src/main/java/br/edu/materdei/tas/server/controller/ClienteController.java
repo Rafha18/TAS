@@ -1,9 +1,9 @@
 package br.edu.materdei.tas.server.controller;
 
-import br.edu.materdei.tas.core.entity.GrupoEntity;
 import br.edu.materdei.tas.core.exception.ResourceNotFoundException;
-import br.edu.materdei.tas.core.service.GrupoService;
 import br.edu.materdei.tas.server.utils.CustomErrorResponse;
+import br.edu.materdei.tas.venda.entity.ClienteEntity;
+import br.edu.materdei.tas.venda.service.ClienteService;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -21,73 +21,73 @@ import org.springframework.web.bind.annotation.RestController;
  * @author Rafael Quadra
  */
 @RestController
-public class GrupoController {
+public class ClienteController {
 
     @Autowired
-    private GrupoService service;
+    private ClienteService service;
 
-    @GetMapping("grupos")
-    public ResponseEntity<List<GrupoEntity>> findAll() {
+    @GetMapping("clientes")
+    public ResponseEntity<List<ClienteEntity>> findAll() {
 
         try {
-            List<GrupoEntity> grupos = service.findAll();
+            List<ClienteEntity> clientes = service.findAll();
 
-            return new ResponseEntity(grupos, HttpStatus.OK);
+            return new ResponseEntity(clientes, HttpStatus.OK);
         } catch (Exception e) {
 
             return new ResponseEntity(new CustomErrorResponse(e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
-    @PostMapping("grupos")
-    public ResponseEntity create(@RequestBody GrupoEntity grupo) {
+    @PostMapping("clientes")
+    public ResponseEntity create(@RequestBody ClienteEntity cliente) {
         try {
-            this.service.save(grupo);
-            return new ResponseEntity(grupo, HttpStatus.CREATED);
+            this.service.save(cliente);
+            return new ResponseEntity(cliente, HttpStatus.CREATED);
         } catch (Exception e) {
             return new ResponseEntity(new CustomErrorResponse(e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
-    @GetMapping("grupos/{id}")
+    @GetMapping("clientes/{id}")
     public ResponseEntity findByID(@PathVariable("id") Integer id) {
         try {
 
-            GrupoEntity grupo = this.service.findById(id);
-            return new ResponseEntity(grupo, HttpStatus.OK);
+            ClienteEntity cliente = this.service.findById(id);
+            return new ResponseEntity(cliente, HttpStatus.OK);
 
         } catch (ResourceNotFoundException e) {
-            return new ResponseEntity(new CustomErrorResponse("Não existe um grupo com este codigo"),
+            return new ResponseEntity(new CustomErrorResponse("Não existe um cliente com este codigo"),
                     HttpStatus.NOT_FOUND);
         } catch (Exception e) {
             return new ResponseEntity(new CustomErrorResponse(e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
-    @PutMapping("grupos/{id}")
-    public ResponseEntity update(@PathVariable("id") Integer id, @RequestBody GrupoEntity grupo) {
+    @PutMapping("clientes/{id}")
+    public ResponseEntity update(@PathVariable("id") Integer id, @RequestBody ClienteEntity cliente) {
         try {
 
-            GrupoEntity found = this.service.findById(id);
+            ClienteEntity found = this.service.findById(id);
 
-            grupo.setId(found.getId());
+            cliente.setId(found.getId());
 
-            this.service.save(grupo);
+            this.service.save(cliente);
 
-            return new ResponseEntity(grupo, HttpStatus.OK);
+            return new ResponseEntity(cliente, HttpStatus.OK);
 
         } catch (ResourceNotFoundException e) {
-            return new ResponseEntity(new CustomErrorResponse("Não existe um grupo com este codigo"),
+            return new ResponseEntity(new CustomErrorResponse("Não existe um cliente com este codigo"),
                     HttpStatus.NOT_FOUND);
         } catch (Exception e) {
             return new ResponseEntity(new CustomErrorResponse(e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
-    @DeleteMapping("grupos/{id}")
+    @DeleteMapping("clientes/{id}")
     public ResponseEntity delete(@PathVariable("id") Integer id) {
         try {
-            GrupoEntity found = this.service.findById(id);
+            ClienteEntity found = this.service.findById(id);
 
             this.service.delete(found.getId());
 
@@ -95,7 +95,7 @@ public class GrupoController {
 
         } catch (ResourceNotFoundException e) {
 
-            return new ResponseEntity(new CustomErrorResponse("Não existe um grupo com este codigo"),
+            return new ResponseEntity(new CustomErrorResponse("Não existe um cliente com este codigo"),
                     HttpStatus.NOT_FOUND);
 
         } catch (Exception e) {
