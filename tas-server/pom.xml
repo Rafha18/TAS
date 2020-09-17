@@ -48,6 +48,12 @@
             <artifactId>tas-estoque</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-web</artifactId>
+            <version>5.2.7.RELEASE</version>
+            <type>jar</type>
+        </dependency>
     </dependencies>
     
     <properties>
