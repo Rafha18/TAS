@@ -61,7 +61,13 @@ public class VendaService implements IBaseService<VendaEntity> {
     @Override
     @Transactional
     public void delete(Integer id) throws ResourceNotFoundException {
+        
+        VendaEntity venda = this.findById(id);
+        
         repository.deleteById(id);
+        
+        PedidoEntity pedido = venda.getPedido();
+        pedido.setDtfaturado(null);
     }
 
 }
