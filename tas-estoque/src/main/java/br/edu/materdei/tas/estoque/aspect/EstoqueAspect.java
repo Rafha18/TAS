@@ -6,11 +6,14 @@ import br.edu.materdei.tas.core.exception.ResourceNotFoundException;
 import br.edu.materdei.tas.estoque.entity.EstoqueEntity;
 import br.edu.materdei.tas.estoque.service.EstoqueService;
 import br.edu.materdei.tas.venda.entity.VendaEntity;
+import br.edu.materdei.tas.venda.service.VendaService;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.persistence.EntityManager;
 import org.aspectj.lang.JoinPoint;
+import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.AfterReturning;
+import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,7 +35,7 @@ public class EstoqueAspect {
     private CompraService compraService;
     
     @Autowired
-    private EntityManager entityManager;
+    private VendaService vendaService;
     
     @AfterReturning(pointcut = "execution( * br.edu.materdei.tas.compra.service.CompraService.save(..))")
     public void salvarCompra(JoinPoint joinPoint){
@@ -67,7 +70,7 @@ public class EstoqueAspect {
     }
     
      @Before("execution( * br.edu.materdei.tas.compra.service.CompraService.delete(..))")
-    public void excluirCompra(JoinPoint joinPoint){
+    public void estornarCompra(JoinPoint joinPoint){
         Object[] args = joinPoint.getArgs();
         Integer id = (Integer) args[0];
         
@@ -92,22 +95,45 @@ public class EstoqueAspect {
         
     }
     
-    @AfterReturning(pointcut = "execution( * br.edu.materdei.tas.venda.service.VendaService.delete(..))")
-    public void excluirVenda(JoinPoint joinPoint){
+    @Around("execution( * br.edu.materdei.tas.venda.service.VendaService.delete(..))")
+    public void estornarVenda(ProceedingJoinPoint joinPoint){
         Object[] args = joinPoint.getArgs();
         Integer id = (Integer) args[0];
         
-        VendaEntity venda = this.entityManager.getReference(VendaEntity.class, id);
+        VendaEntity venda = null;
+        
+        try {
+            
+            venda = this.vendaService.findById(id);
+            
+        } catch (ResourceNotFoundException ex) {
+            Logger.getLogger(EstoqueAspect.class.getName()).log(Level.SEVERE, null, 
+                    "O Processo de Movimento foi Abortado, pois não foi encontrada uma venda com o ID" + id);
+        }
+        
+        try {
+            
+            joinPoint.proceed();
+            
+        } catch (Throwable ex) {
+            
+            Logger.getLogger(EstoqueAspect.class.getName()).log(Level.SEVERE, null, ex);
+            
+        }
+        
+        if (venda != null){
+        String codigo = venda.getCodigo();
         
         venda.getPedido().getItens().forEach(item -> {
             EstoqueEntity estoque = new EstoqueEntity();
             
             estoque.setProduto(item.getProduto());
             estoque.setQtdade(item.getQtdade());
-            estoque.setHistorico("Movimento de Entrada Originado Pelo Estorno da Venda "+ venda.getCodigo());
+            estoque.setHistorico("Movimento de Entrada Originado Pelo Estorno da Venda "+ codigo);
             
             this.service.save(estoque);
         });
+    }
     }
     
 }
